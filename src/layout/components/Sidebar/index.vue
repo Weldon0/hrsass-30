@@ -25,12 +25,14 @@ import SidebarItem from './SidebarItem'
 import variables from '@/styles/variables.scss'
 
 export default {
+  name: 'SideBar',
   components: { SidebarItem, Logo },
   computed: {
     ...mapGetters([
       'sidebar'
     ]),
     routes() {
+      // 返回你配置的路由表信息
       return this.$router.options.routes
     },
     activeMenu() {

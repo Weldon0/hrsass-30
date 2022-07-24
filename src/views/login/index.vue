@@ -130,8 +130,9 @@ export default {
     async handleLogin() {
       try {
         await this.$refs.loginForm.validate()
+        console.log('234')
         this.loading = true
-
+        console.log('2342343242')
         // 登录请求 >> action
         // action 也是一个promise
         await this.login(this.loginForm)
@@ -141,6 +142,7 @@ export default {
         this.$router.push({ path: this.redirect || '/' })
         this.loading = false
       } catch (e) {
+        // console.log(e)
         this.loading = false
       }
       // 拿到form的实例 >> 校验表单
