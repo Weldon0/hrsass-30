@@ -1,5 +1,12 @@
 <template>
   <div class="user-info">
+    <el-row type="flex" justify="end">
+      <el-tooltip class="item" effect="dark" content="打印个人信息" placement="bottom-end">
+        <router-link :to="`/employees/print/${userId}?type=personal`">
+          <i class="el-icon-printer" />
+        </router-link>
+      </el-tooltip>
+    </el-row>
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,7 +65,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
-            <ImageUpload />
+            <ImageUpload ref="avatarRef" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -90,6 +97,7 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <ImageUpload ref="personalRef" />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -377,44 +385,70 @@ export default {
       }
     }
   },
-  watch: {
-    userInfo() {
-      console.log(this.workNumber)
-    }
-  },
   created() {
     // 获取上半部分用户信息
     this.getUserInfo()
     // 获取下半部分的用户信息
     this.getPersonalDetail()
   },
-  mounted() {
-    setTimeout(() => {
-      console.log(this.userInfo)
-    }, 1000)
-  },
   methods: {
     // 保存上半部分的用户信息
     async saveUser() {
       // 保存上半部分数据的接口 >> saveUserDetailById
+
+      // 获取子组件filelist里面的内容
+      const fileList = this.$refs.avatarRef.fileList
+      // 判断图片是否全部上传完毕 >> upload属性是否存在
+      // 是否包含未上传完毕的元素
+      if (fileList.some(item => !item.upload)) {
+      // 错误的提示
+        this.$message.warning('图片没有上传完成')
+        return
+      }
+      // 全部完成
       await saveUserDetailById({
         ...this.userInfo,
-        id: this.userId
+        id: this.userId,
+        staffPhoto: fileList?.[0]?.url
       })
       this.$message.success('保存个人信息成功')
     },
     // 保存下半部分的用户信息
     async savePersonal() {
-      await updatePersonal(this.formData)
+      const fileList = this.$refs.personalRef.fileList
+      // 判断图片是否全部上传完毕 >> upload属性是否存在
+      // 是否包含未上传完毕的元素
+      if (fileList.some(item => !item.upload)) {
+        // 错误的提示
+        this.$message.warning('图片没有上传完成')
+        return
+      }
+      await updatePersonal({
+        ...this.formData,
+        staffPhoto: fileList?.[0]?.url
+      })
       this.$message.success('保存个人基础信息成功')
     },
     async getUserInfo() {
     //  获取上半部分的用户信息
       this.userInfo = await getUserDetailById(this.userId)
+      // 获取到用户的头像数据
+      // 1、接口里面获取到用户头像数据的时候，需要传递给upload组件的fileList
+      // 2、点击更新的时候，需要获取组件内部的fileList进行提交
+      this.$refs.avatarRef.fileList = [{
+        url: this.userInfo.staffPhoto,
+        upload: true
+      }]
     },
     async getPersonalDetail() {
       //  获取下半部分的用户信息
       this.formData = await getPersonalDetail(this.userId)
+      // 通过ref获取到子组件的实例，然后获取到fileList进行赋值
+      // 获取到的头像数据，已经是上传完成的，直接可以提交，所以打一个upload标记
+      this.$refs.personalRef.fileList = [{
+        url: this.formData.staffPhoto,
+        upload: true
+      }]
     }
   }
 }

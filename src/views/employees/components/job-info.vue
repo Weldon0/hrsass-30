@@ -1,5 +1,12 @@
 <template>
   <div class="job-info">
+    <el-row type="flex" justify="end">
+      <el-tooltip class="item" effect="dark" content="打印岗位信息表" placement="bottom-end">
+        <router-link :to="`/employees/print/${userId}?type=job`">
+          <i class="el-icon-printer" />
+        </router-link>
+      </el-tooltip>
+    </el-row>
     <!-- 基础信息 -->
     <el-form label-width="220px">
       <div class="block">

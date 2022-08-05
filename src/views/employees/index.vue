@@ -15,6 +15,20 @@
         <el-table border :data="list">
           <el-table-column type="index" label="序号" sortable="" />
           <el-table-column prop="username" label="姓名" sortable="" />
+          <el-table-column label="头像">
+            <template v-slot="{row}">
+              <el-row type="flex" justify="center">
+                <el-avatar
+                  style="width: 80px; height: 80px"
+                  :src="row.staffPhoto"
+                  @click.native="showQrCode(row.staffPhoto)"
+                >
+                  <!--图片加载不出来的时候会展示插槽里面的内容-->
+                  <img src="@/assets/common/bigUserHeader.png" alt="">
+                </el-avatar>
+              </el-row>
+            </template>
+          </el-table-column>
           <el-table-column label="工号" prop="workNumber" sortable="" />
           <el-table-column :formatter="formatter" label="聘用形式" sortable="" prop="formOfEmployment" />
           <el-table-column label="部门" sortable="" prop="departmentName" />
@@ -30,11 +44,13 @@
                 type="text"
                 size="small"
                 @click="$router.push(`/employees/detail/${row.id}`)"
-              >查看</el-button>
+              >
+                查看
+              </el-button>
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button type="text" size="small" @click="editRole(row.id)">角色</el-button>
               <el-button type="text" size="small" @click="del(row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -52,6 +68,12 @@
       </el-card>
     </div>
     <AddEmployee :is-show-add-emp-dialog.sync="isShowAddEmpDialog" />
+    <el-dialog :visible.sync="showAvatar" title="二维码预览">
+      <el-row type="flex" justify="center">
+        <canvas ref="canvas" />
+      </el-row>
+    </el-dialog>
+    <AssignRole ref="roleRef" :current-id="currentId" :show-dialog.sync="showDialog" />
   </div>
 </template>
 
@@ -59,14 +81,19 @@
 import { delEmployee, getEmployeeList } from '@/api/employees'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from '@/views/employees/components/add-employee'
+import qrCode from 'qrcode'
 import { formatDate } from '@/filters'
+import AssignRole from '@/views/employees/components/assign-role'
 
 export default {
-  components: { AddEmployee },
+  components: { AssignRole, AddEmployee },
   data() {
     return {
+      showDialog: false,
+      showAvatar: false,
       isShowAddEmpDialog: false,
       list: [],
+      currentId: null,
       total: 0,
       page: {
         page: 1,
@@ -78,6 +105,24 @@ export default {
     this.getEmpList()
   },
   methods: {
+    // 点击角色按钮的逻辑
+    async editRole(id) {
+      // 手动调用弹层内部获取当前用户角色数据的方法
+      this.currentId = id
+      await this.$refs.roleRef.getCurrentRoleIds(id)
+      this.showDialog = true
+    },
+    showQrCode(url) {
+      console.log(url)
+      // 预览头像的弹层展示出来
+      this.showAvatar = true
+      // 数据更新之后界面不能立即渲染
+      // 如果要在数据更新后获取到更新后的最新的dom元素
+      // 需要使用$nextTick
+      this.$nextTick(() => {
+        qrCode.toCanvas(this.$refs.canvas, url)
+      })
+    },
     async exportToExcel() {
       // 预期导出一个excel
       // 动态导入一个模块的时候，使用import语法

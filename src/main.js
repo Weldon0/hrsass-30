@@ -2,7 +2,7 @@ import Vue from 'vue'
 import 'normalize.css/normalize.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en'
+import Print from 'vue-print-nb'
 import Components from '@/components/index'
 import '@/styles/index.scss'
 import App from './App'
@@ -14,6 +14,10 @@ import '@/permission'
 
 // 引入过滤器 >> 注册
 import * as filters from '@/filters/index'
+
+// 全局注册了，提供一个全局指令 v-print
+// v-print='dom元素选择器'
+Vue.use(Print)
 
 // 所有的过滤器，进行全局注册
 for (const filtersKey in filters) {
