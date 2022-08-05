@@ -2,6 +2,8 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+import { error } from 'autoprefixer/lib/utils'
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -114,4 +116,82 @@ export function param2Obj(url) {
     }
   })
   return obj
+}
+
+// export function transListToTree1(list, rootValue) {
+//   const arr = []
+//   //  arr >> 处理
+//   list.forEach(item => {
+//     // 判断当前节点的id是否等于传入的pid(rootValue)
+//     if (item.pid === rootValue) {
+//       // 判断item是否有子节点？
+//       const children = transListToTree(list, item.id)
+//       // 如果有子节点 >> 把这些子节点作为当前item的children属性
+//       if (children.length) {
+//         item.children = children
+//       }
+//       arr.push(item)
+//     }
+//   })
+//   return arr
+// }
+
+// list >> 😳待转化的数据 rootValue >> 根节点的pid
+// 筛选出 pid = rootValue的所有节点
+
+// 怎么样找到一级节点的子节点
+// 所有的数据里面的pid如果等于当前以及节点的id
+
+// 算法
+// 复杂度
+
+// 时间复杂度
+// 空间复杂度
+
+// 预期 >> 一次性遍历构建好关联关系
+export function transListToTree(list, rootValue) {
+  const arr = []
+  //  arr >> 处理
+  list.forEach(item => {
+    // 判断当前节点的id是否等于传入的pid(rootValue)
+    if (item.pid === rootValue) {
+      // 判断item是否有子节点？
+      const children = transListToTree(list, item.id)
+      // 如果有子节点 >> 把这些子节点作为当前item的children属性
+      if (children.length) {
+        item.children = children
+      }
+      arr.push(item)
+    }
+  })
+  return arr
+}
+
+export function transListToTreeNew(list, rootPid) {
+  // 构建好关系的树节点
+  const treeList = []
+
+  //
+  // 数组结构 》》
+  const map = { } // map[id]
+
+  list.forEach(item => {
+    if (!item.children) {
+      item.children = []
+    }
+    map[item.id] = item
+  })
+
+  list.forEach(item => {
+    // 判断当前遍历项是否有父级节点
+    const parent = map[item.pid]
+    if (parent) {
+      parent.children.push(item)
+    } else if (item.pid === rootPid) {
+      treeList.push(item)
+    }
+  })
+
+  return treeList
+  // console.log(map)
 }

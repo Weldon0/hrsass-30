@@ -175,5 +175,3 @@ const arr = [
     'createTime': '2022-06-30 16:21:32'
   }
 ]
-
-console.log(transList(arr))

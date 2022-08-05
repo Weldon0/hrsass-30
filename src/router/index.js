@@ -78,6 +78,13 @@ export const constantRoutes = [
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
+    }, {
+      path: 'import',
+      component: () => import(/* webpackChunkName: 'import'*/'@/views/imports/index'),
+      hidden: true
+      // meta: {
+      //   title: '导入',
+      // }
     }]
   },
   // 404 page must be placed at the end !!!

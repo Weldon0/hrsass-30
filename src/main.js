@@ -1,60 +1,42 @@
 import Vue from 'vue'
-
-import 'normalize.css/normalize.css' // A modern alternative to CSS resets
-
+import 'normalize.css/normalize.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
-
-import '@/styles/index.scss' // global css
-
+import locale from 'element-ui/lib/locale/lang/en'
+import Components from '@/components/index'
+import '@/styles/index.scss'
 import App from './App'
 import store from './store'
 import router from './router'
 
-import '@/icons' // icon
-import '@/permission' // permission control
+import '@/icons'
+import '@/permission'
 
-// 一次性注册所有指令
-import * as directives from '@/directives/index'
+// 引入过滤器 >> 注册
+import * as filters from '@/filters/index'
 
-/**
- * {
- *   imgError: {inserted() {}},
- *   focus: {inserted() {}}
- * }
- */
-console.log(directives)
-
-for (const key in directives) {
-//  注册指令
-  Vue.directive(key, directives[key])
+// 所有的过滤器，进行全局注册
+for (const filtersKey in filters) {
+  Vue.filter(filtersKey, filters[filtersKey])
 }
 
+console.log(filters)
+// Vue.filter('name', (value) => {
+//   return '234'
+// })
+
 /**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
+ * 对象：提供install方法，自动调用对象的install方法，然后把Vue传入
+ * 函数：直接调用函数，然后把Vue传入
  */
-
-// mock数据 >> 模拟数据 >>
-// 联调 >>
-// prd >> 原型稿
-// if (process.env.NODE_ENV === 'production') {
-//   const { mockXHR } = require('../mock')
-//   mockXHR()
-// }
-
-// set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
-// 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ElementUI)
-
+Vue.use(Components)
+import * as directives from '@/directives/index'
+for (const key in directives) {
+  Vue.directive(key, directives[key])
+}
+Vue.use(ElementUI)
 Vue.config.productionTip = false
-
+// Vue.prototype.$router = router
 new Vue({
   el: '#app',
   router,
