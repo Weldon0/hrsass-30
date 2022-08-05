@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <div class="dashboard-text">name: {{ name }}</div>
     <!--    <UploadExcel />-->
-    <ImageUpload />
+    <!--    <Test :config="{type: 'el-input', defaultValue: '你好', props: {labelWidth: '20px', label: '姓名'}}" />-->
   </div>
 </template>
 
