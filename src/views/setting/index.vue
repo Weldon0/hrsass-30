@@ -28,7 +28,7 @@
               label="操作"
             >
               <template v-slot="{row}">
-                <el-button size="small" type="success">分配权限</el-button>
+                <el-button size="small" type="success" @click="assignPerm(row.id)">分配权限</el-button>
                 <el-button size="small" type="primary" @click="edit(row.id)">编辑</el-button>
                 <el-button size="small" type="danger" @click="del(row.id)">删除</el-button>
               </template>
@@ -69,7 +69,7 @@
       </el-tabs>
     </el-card>
 
-    <el-dialog :title="`${this.roleFormData.id ? '编辑' : '新增'}角色`" :visible="showDialog" @close="close">
+    <el-dialog :title="`${roleFormData.id ? '编辑' : '新增'}角色`" :visible="showDialog" @close="close">
       <el-form ref="roleForm" :model="roleFormData" :rules="roleRules" label-width="120px">
         <el-form-item label="角色" prop="name">
           <el-input v-model="roleFormData.name" />
@@ -83,14 +83,42 @@
         <el-button type="primary" @click="btnOk">确定</el-button>
       </template>
     </el-dialog>
+    <el-dialog title="分配权限" :visible.sync="showPermissionDialog">
+      <el-tree
+        default-expand-all
+        show-checkbox
+        :props="props"
+        :data="permissionList"
+        check-strictly
+        node-key="id"
+        :default-checked-keys="checkedKeys"
+      />
+      <template #footer>
+        <el-button size="mini">取消</el-button>
+        <el-button size="mini" type="primary">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script>
 import { addRole, deleteRole, getCompanyInfo, getRoleDetail, getRoleList, updateRole } from '@/api/settting'
+import { getPermissionList } from '@/api/permission'
+import { transListToTree } from '@/utils'
+import to from 'await-to-js'
 
 export default {
+  name: 'Setting',
   data() {
     return {
+      props: {
+        // 指定展示标签的属性
+        label: 'name'
+      },
+      // 当前点击角色拥有的权限信息
+      checkedKeys: [],
+      // 控制弹层是否隐藏的标识
+      permissionList: [],
+      showPermissionDialog: false,
       showDialog: false,
       roleFormData: {
         name: '',
@@ -120,6 +148,23 @@ export default {
     this.getCompanyInfo()
   },
   methods: {
+    async assignPerm(id) {
+      // id >> 当前点击的角色id
+      console.log(id)
+      // 从后端获取的扁平的数组结构转化成树形结构
+      // 所有的权限数据转化成树形 >> 默认展示
+      this.permissionList = transListToTree(await getPermissionList(), '0')
+      //  弹出层
+
+      // 处理当前角色拥有的权限信息，默认选中
+      // permIds 当前角色的权限id数组
+      const [err, { permIds } = {}] = await to(getRoleDetail(id))
+      // console.log(res)
+      // 指定默认选中的节点
+      if (err) return
+      this.checkedKeys = permIds
+      this.showPermissionDialog = true
+    },
     handleClick(tab, event) {
       console.log(tab, event)
     },
