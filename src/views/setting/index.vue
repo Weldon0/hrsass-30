@@ -83,8 +83,9 @@
         <el-button type="primary" @click="btnOk">确定</el-button>
       </template>
     </el-dialog>
-    <el-dialog title="分配权限" :visible.sync="showPermissionDialog">
+    <el-dialog title="分配权限" :visible="showPermissionDialog" @close="closePermission">
       <el-tree
+        ref="treeRef"
         default-expand-all
         show-checkbox
         :props="props"
@@ -94,17 +95,16 @@
         :default-checked-keys="checkedKeys"
       />
       <template #footer>
-        <el-button size="mini">取消</el-button>
-        <el-button size="mini" type="primary">确定</el-button>
+        <el-button size="mini" @click="closePermission">取消</el-button>
+        <el-button size="mini" type="primary" @click="btnOkPermission">确定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 <script>
 import { addRole, deleteRole, getCompanyInfo, getRoleDetail, getRoleList, updateRole } from '@/api/settting'
-import { getPermissionList } from '@/api/permission'
+import { assignPerm, getPermissionList } from '@/api/permission'
 import { transListToTree } from '@/utils'
-import to from 'await-to-js'
 
 export default {
   name: 'Setting',
@@ -137,6 +137,7 @@ export default {
         pagesize: 10,
         page: 1 // 3
       },
+      currentRoleId: null,
       /**
        * @type {CompanyInfo.Data}
        */
@@ -148,9 +149,27 @@ export default {
     this.getCompanyInfo()
   },
   methods: {
+    async btnOkPermission() {
+      // 获取修改之后tree选中的节点数组
+      const checkedKeys = this.$refs.treeRef.getCheckedKeys()
+      await assignPerm({
+        id: this.currentRoleId, // 当前点击的角色id
+        permIds: checkedKeys // 修改之后的权限列表
+      })
+      // 成功的提示
+      this.$message.success('分配权限成功')
+      // 关闭弹层
+      this.closePermission()
+    },
+    closePermission() {
+      this.showPermissionDialog = false
+      // 树组件里面选中的节点置空
+      this.checkedKeys = []
+    },
     async assignPerm(id) {
       // id >> 当前点击的角色id
-      console.log(id)
+      this.currentRoleId = id
+      // console.log(id)
       // 从后端获取的扁平的数组结构转化成树形结构
       // 所有的权限数据转化成树形 >> 默认展示
       this.permissionList = transListToTree(await getPermissionList(), '0')
@@ -158,10 +177,8 @@ export default {
 
       // 处理当前角色拥有的权限信息，默认选中
       // permIds 当前角色的权限id数组
-      const [err, { permIds } = {}] = await to(getRoleDetail(id))
-      // console.log(res)
+      const { permIds } = await getRoleDetail(id)
       // 指定默认选中的节点
-      if (err) return
       this.checkedKeys = permIds
       this.showPermissionDialog = true
     },

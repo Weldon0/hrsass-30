@@ -1,6 +1,7 @@
 // 状态
 import { getToken, removeToken, setTime, setToken } from '@/utils/auth'
 import { getUserDetailById, getUserInfo, login } from '@/api/user'
+import { resetRouter } from '@/router'
 
 const state = {
   token: getToken(), // 初始化的时候把本地存储里面的token复制给vuex默认值
@@ -48,12 +49,25 @@ const actions = {
     // console.log(res)
     //  存储到vuex
     context.commit('setUserInfo', { ...res, ...baseInfo })
+    // console.log({
+    //   ...res,
+    //   ...baseInfo
+    // })
+    return {
+      ...baseInfo,
+      ...res
+    }
   },
   //  退出登录功能
   logOut(context) {
   //  清楚token/用户信息
     context.commit('removeUserInfo')
     context.commit('removeToken')
+    // 重置路由匹配信息
+    resetRouter()
+    // context是根节点的上下文
+    // vuex里面的路由表置空
+    context.commit('permission/setRoutes', [], { root: true })
   }
 }
 export default {

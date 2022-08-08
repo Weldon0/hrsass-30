@@ -57,13 +57,13 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
+// 静态路由表
 export const constantRoutes = [
   {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
   {
     path: '/404',
     component: () => import('@/views/404'),
@@ -86,15 +86,14 @@ export const constantRoutes = [
       //   title: '导入',
       // }
     }]
-  },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: [...constantRoutes, ...asyncRoutes]
+  // 默认只有静态路由
+  routes: constantRoutes
 })
 
 const router = createRouter()
@@ -109,4 +108,11 @@ export default router
 
 /**
  * 划分模块 >> 动态路由 >> 有权限的时候才会配置到路由表里面
+ */
+
+/**
+ * 默认只有静态路由 >> 首页 、 登录 、 404
+ * 登录成功之后，先获取用户信息，判断是否拥有动态路由的权限
+ * 如果你拥有某个动态路由的权限，才会加载到路由表里面 router.addRoutes方法
+ * 动态路由(权限路由)
  */

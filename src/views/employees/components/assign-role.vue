@@ -46,7 +46,7 @@ export default {
         await assignRoles({
           // 点击了编辑的时候，从父组件传值传下来的当前用户id
           id: this.currentId,
-          roleIds: []
+          roleIds: this.roleIds
         })
         this.$message.success('修改角色成功')
         this.close()

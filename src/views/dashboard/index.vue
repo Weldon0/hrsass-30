@@ -1,20 +1,28 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-text">name: {{ name }}</div>
-    <!--    <UploadExcel />-->
-    <!--    <Test :config="{type: 'el-input', defaultValue: '你好', props: {labelWidth: '20px', label: '姓名'}}" />-->
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import { mixins } from '@/utils/mixins'
 
 export default {
   name: 'Dashboard',
+  // 解决组件的逻辑复用
+  mixins: [mixins],
   computed: {
     ...mapGetters([
       'name'
     ])
+  },
+  mounted() {
+    // console.log('我是组件自身的mounted')
+    this.hello()
+  },
+  created() {
+    // console.log('组件自己的created')
   }
 }
 </script>
@@ -24,6 +32,7 @@ export default {
   &-container {
     margin: 30px;
   }
+
   &-text {
     font-size: 30px;
     line-height: 46px;

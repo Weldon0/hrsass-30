@@ -33,11 +33,33 @@ router.beforeEach(async(to, from, next) => {
 
   // 如果有token，除了登录界面不能跳转，其他都可以
   if (token) { // 如果有token的情况
-    //  判断是否去登录界面
+    // 判断是否去登录界面
     // 获取用户信息
-
     if (!store.getters.userId) {
-      await store.dispatch('user/getUserInfo')
+      /**
+       * @type {UserInfoData['data']}
+       */
+      const res = await store.dispatch('user/getUserInfo') // 默认情况静态路由
+      // console.log(res)
+      // 添加用户拥有的路由权限之后，再去做跳转 filterRoutes
+      // console.log(res.roles.menus)
+      // routes筛选以后的结果 >> 用户拥有权限的动态路由列表
+      // console.log(res.roles.menus)
+      // console.log(res)
+      const routes = await store.dispatch('permission/filterRoutes', res.roles.menus)
+      // console.log(routes)
+      // 默认情况只有静态路由
+      // 进行动态路由的添加
+      router.addRoutes([
+        ...routes,
+        // 404 page must be placed at the end !!!
+        { path: '*', redirect: '/404', hidden: true }
+      ])
+      // 重新再进行跳转
+      next(to.path)
+      // console.log(routes)
+      //   筛选出动态路由以后，需要添加router里面，这样的可以去访问
+      //  route.addRoutes
     }
     if (to.path === loginPath) {
       next('/') // 跳转到首页

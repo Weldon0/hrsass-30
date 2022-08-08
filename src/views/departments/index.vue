@@ -38,9 +38,11 @@ import TreeTool from '@/views/departments/components/tree-tool'
 import { getDepartments } from '@/api/departments'
 import { transListToTreeNew } from '@/utils'
 import AddDept from '@/views/departments/components/add-dept'
+import { mixins } from '@/utils/mixins'
 
 export default {
   components: { AddDept, TreeTool },
+  mixins: [mixins],
   data() {
     return {
       loading: false,

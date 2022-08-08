@@ -33,7 +33,8 @@ export default {
     ]),
     routes() {
       // 返回你配置的路由表信息
-      return this.$router.options.routes
+      // return this.$router.options.routes
+      return this.$store.getters.routes
     },
     activeMenu() {
       const route = this.$route
