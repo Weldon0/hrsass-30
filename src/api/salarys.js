@@ -25,7 +25,6 @@ export function getCompanySetting() {
   })
 }
 
-console.log('234')
 export function saveSettings(data) {
   return request({
     url: '/salarys/settings',

@@ -403,7 +403,8 @@ import {
   getOvertime
 } from '@/api/attendances'
 import attendanceApi from '@/api/constant/attendance'
-import * as commonApi from '@/utils'
+import { transListToTree } from '@/utils'
+
 export default {
   name: 'Add',
   props: [],
@@ -664,7 +665,7 @@ export default {
       this.$refs.overtimeForm.validate(async valid => {
         if (valid) {
           var deductionList = this.overtimeBase
-          deductionList.latestEffectDate = commonApi.transListToTreeData(
+          deductionList.latestEffectDate = transListToTree(
             deductionList.latestEffectDate
           )
           if (deductionList.isClock === true) {
